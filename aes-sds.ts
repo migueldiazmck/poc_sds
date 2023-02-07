@@ -1,5 +1,5 @@
 import { parse, format } from 'date-fns';
-import {Cipher, createCipheriv, createDecipheriv, createDecipher, createCipher, createSecretKey, createHash, Hex, pbkdf2, randomBytes, pbkdf2Sync } from 'crypto';
+import {createCipheriv, createHash, pbkdf2Sync } from 'node:crypto';
 
 const DeviceIdPhone = "ece4124e31e6212b";
 const password = "9876";
@@ -59,10 +59,11 @@ function main() {
 }
 
 function encrypted({ iv, salt, passprhase, password}): Buffer  {
-  const keySize = 256;
+  const keySizeBits = 256;
+  const keySizeBytes = keySizeBits / 8;
   const iterationCount = 10;
   const saltBuffer = Buffer.from(salt, 'hex');
-  const secretKey = pbkdf2Sync(Buffer.from(passprhase), saltBuffer, iterationCount, keySize / 8, 'sha1');
+  const secretKey = pbkdf2Sync(Buffer.from(passprhase), saltBuffer, iterationCount, keySizeBytes, 'sha1');
   const cipher = createCipheriv('aes-256-cbc', secretKey, Buffer.from(iv, 'hex'));
   cipher.update(Buffer.from(password, 'utf8'));
   return cipher.final();
